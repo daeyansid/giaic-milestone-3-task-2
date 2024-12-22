@@ -1,5 +1,5 @@
 // File: components/Cart.tsx
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface CartItem {
     id: string;
@@ -10,6 +10,19 @@ interface CartItem {
 
 export default function Cart() {
     const [cart, setCart] = useState<CartItem[]>([]);
+
+    // Load cart from localStorage on component mount
+    useEffect(() => {
+        const savedCart = localStorage.getItem('cart');
+        if (savedCart) {
+            setCart(JSON.parse(savedCart));
+        }
+    }, []);
+
+    // Save cart to localStorage whenever it changes
+    useEffect(() => {
+        localStorage.setItem('cart', JSON.stringify(cart));
+    }, [cart]);
 
     const addToCart = (item: CartItem) => {
         setCart((prevCart) => {
@@ -27,21 +40,39 @@ export default function Cart() {
         setCart((prevCart) => prevCart.filter((c) => c.id !== id));
     };
 
+    const clearCart = () => {
+        setCart([]);
+    };
+
     return (
-        <div>
-            <h2 className="text-2xl font-semibold mb-4">Shopping Cart</h2>
-            {cart.map((item) => (
-                <div key={item.id} className="border-b py-2">
-                    <p>{item.name}</p>
-                    <p>${item.price} x {item.quantity}</p>
+        <div className="p-4">
+            <h2 className="text-2xl text-black font-semibold mb-4">Shopping Cart</h2>
+            {cart.length === 0 ? (
+                <p className="text-black">Your cart is empty.</p>
+            ) : (
+                <>
+                    {cart.map((item) => (
+                        <div key={item.id} className="border-b py-2">
+                            <p className="font-semibold">{item.name}</p>
+                            <p>
+                                PKR {item.price} x {item.quantity}
+                            </p>
+                            <button
+                                onClick={() => removeFromCart(item.id)}
+                                className="text-red-500 hover:underline"
+                            >
+                                Remove
+                            </button>
+                        </div>
+                    ))}
                     <button
-                        onClick={() => removeFromCart(item.id)}
-                        className="text-red-500 hover:underline"
+                        onClick={clearCart}
+                        className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
                     >
-                        Remove
+                        Clear Cart
                     </button>
-                </div>
-            ))}
+                </>
+            )}
         </div>
     );
 }
