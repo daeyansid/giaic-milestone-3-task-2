@@ -24,18 +24,6 @@ export default function Cart() {
         localStorage.setItem('cart', JSON.stringify(cart));
     }, [cart]);
 
-    const addToCart = (item: CartItem) => {
-        setCart((prevCart) => {
-            const existing = prevCart.find((c) => c.id === item.id);
-            if (existing) {
-                return prevCart.map((c) =>
-                    c.id === item.id ? { ...c, quantity: c.quantity + 1 } : c
-                );
-            }
-            return [...prevCart, { ...item, quantity: 1 }];
-        });
-    };
-
     const removeFromCart = (id: string) => {
         setCart((prevCart) => prevCart.filter((c) => c.id !== id));
     };
